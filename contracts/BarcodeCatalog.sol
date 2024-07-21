@@ -28,11 +28,8 @@ contract BarcodeCatalog is Ownable {
 
   mapping(string => uint256) public barcodeInfoIndex;
 
-  mapping(string => bool) public isBarcodeActive;
-  mapping(string => bool) public isBarcodeInactive;
-
-  mapping(string => uint256) public activeBarcodeIndex;
-  mapping(string => uint256) public inactiveBarcodeIndex;
+  mapping(string => uint256) private activeBarcodeIndex;
+  mapping(string => uint256) private inactiveBarcodeIndex;
 
   event BarcodeAdded(string indexed barcode);
   event BarcodeRemoved(string indexed barcode);
@@ -45,15 +42,14 @@ contract BarcodeCatalog is Ownable {
   }
 
   modifier onlyBarcodeActive(string memory _barcode) {
-    require(isBarcodeActive[_barcode], "Barcode is not active");
+    require(isBarcodeActive(_barcode), "Barcode is not active");
     _;
   }
 
   modifier onlyBarcodeInactive(string memory _barcode) {
-    require(isBarcodeInactive[_barcode], "Barcode is not inactive");
+    require(isBarcodeInactive(_barcode), "Barcode is not inactive");
     _;
   }
-
 
   constructor() Ownable(msg.sender) {}
 
@@ -63,7 +59,29 @@ contract BarcodeCatalog is Ownable {
    * @return Whether barcode exists.
    */
   function barcodeExists(string memory _barcode) public view returns (bool) {
-    return isBarcodeActive[_barcode] || isBarcodeInactive[_barcode];
+    return isBarcodeActive(_barcode) || isBarcodeInactive(_barcode);
+  }
+
+  /**
+   * @dev Checks if barcode is active.
+   * @param _barcode Barcode to check.
+   * @return Whether barcode is active.
+   */
+  function isBarcodeActive(string memory _barcode) public view returns (bool) {
+    uint256 index = barcodeInfoIndex[_barcode];
+
+    return index > 0 ? true : activeBarcodes[index].isEqual(_barcode); // TODO: test gas usage with if - else
+  }
+
+  /**
+   * @dev Checks if barcode is inactive.
+   * @param _barcode Barcode to check.
+   * @return Whether barcode is inactive.
+   */
+  function isBarcodeInactive(string memory _barcode) public view returns (bool) {
+    uint256 index = barcodeInfoIndex[_barcode];
+
+    return index > 0 ? true : inactiveBarcodes[index].isEqual(_barcode); // TODO: test gas usage with if - else
   }
 
   /**
@@ -80,7 +98,6 @@ contract BarcodeCatalog is Ownable {
       require(!barcodeExists(barcode), "Barcode already exists");
 
       barcodeInfoIndex[barcode] = barcodesInfo.length;
-      isBarcodeActive[barcode] = true;
       activeBarcodeIndex[barcode] = activeBarcodes.length;
 
       barcodesInfo.push( BarcodeInfo(barcode, _descriptions[i]) );
@@ -96,10 +113,7 @@ contract BarcodeCatalog is Ownable {
    * @param _active Status to be set.
    */
   function changeBarcodeStatus(string memory _barcode, bool _active) external onlyOwner onlyBarcodeExists(_barcode) {
-    if (isBarcodeActive[_barcode] == !_active) {
-      isBarcodeActive[_barcode] = false;
-      isBarcodeInactive[_barcode] = true;
-
+    if (isBarcodeActive(_barcode) == !_active) {
       uint256 index = activeBarcodeIndex[_barcode];
       delete activeBarcodeIndex[_barcode];
 
@@ -107,10 +121,7 @@ contract BarcodeCatalog is Ownable {
 
       inactiveBarcodeIndex[_barcode] = inactiveBarcodes.length;
       inactiveBarcodes.push(_barcode);
-    } else if (isBarcodeInactive[_barcode] == !_active) {
-      isBarcodeInactive[_barcode] = false;
-      isBarcodeActive[_barcode] = true;
-
+    } else if (isBarcodeInactive(_barcode) == !_active) {
       uint256 index = inactiveBarcodeIndex[_barcode];
       delete inactiveBarcodeIndex[_barcode];
 
@@ -144,7 +155,7 @@ contract BarcodeCatalog is Ownable {
     uint256 index = barcodeInfoIndex[_barcode];
     delete barcodeInfoIndex[_barcode];
 
-    if (isBarcodeActive[_barcode]) {
+    if (isBarcodeActive(_barcode)) {
       uint256 activeIndex = activeBarcodeIndex[_barcode];
       delete activeBarcodeIndex[_barcode];
 
@@ -155,9 +166,6 @@ contract BarcodeCatalog is Ownable {
 
       inactiveBarcodes.removeAtIndex(inactiveIndex);
     }
-
-    delete isBarcodeActive[_barcode];
-    delete isBarcodeInactive[_barcode];
 
     delete barcodesInfo[index];
 
