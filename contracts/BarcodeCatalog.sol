@@ -115,7 +115,7 @@ contract BarcodeCatalog is Ownable {
    * @param _active Status to be set.
    */
   function changeBarcodeStatus(string memory _barcode, bool _active) external onlyOwner onlyBarcodeExists(_barcode) {
-    if (isBarcodeActive(_barcode) == !_active) {
+    if (isBarcodeActive(_barcode)  && _active == false) {
       uint256 index = activeBarcodeIndex[_barcode];
       delete activeBarcodeIndex[_barcode];
 
@@ -123,7 +123,7 @@ contract BarcodeCatalog is Ownable {
 
       inactiveBarcodeIndex[_barcode] = inactiveBarcodes.length;
       inactiveBarcodes.push(_barcode);
-    } else if (isBarcodeInactive(_barcode) == !_active) {
+    } else if (isBarcodeInactive(_barcode) && _active == true) {
       uint256 index = inactiveBarcodeIndex[_barcode];
       delete inactiveBarcodeIndex[_barcode];
 
