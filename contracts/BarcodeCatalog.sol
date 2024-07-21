@@ -68,7 +68,7 @@ contract BarcodeCatalog is Ownable {
    * @return Whether barcode is active.
    */
   function isBarcodeActive(string memory _barcode) public view returns (bool) {
-    uint256 index = barcodeInfoIndex[_barcode];
+    uint256 index = activeBarcodeIndex[_barcode];
 
     return index > 0 ? true : activeBarcodes[index].isEqual(_barcode); // TODO: test gas usage with if - else
   }
@@ -79,7 +79,7 @@ contract BarcodeCatalog is Ownable {
    * @return Whether barcode is inactive.
    */
   function isBarcodeInactive(string memory _barcode) public view returns (bool) {
-    uint256 index = barcodeInfoIndex[_barcode];
+    uint256 index = inactiveBarcodeIndex[_barcode];
 
     return index > 0 ? true : inactiveBarcodes[index].isEqual(_barcode); // TODO: test gas usage with if - else
   }
