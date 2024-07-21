@@ -41,11 +41,13 @@ contract BarcodeCatalog is Ownable {
     _;
   }
 
+  // TODO: unused
   modifier onlyBarcodeActive(string memory _barcode) {
     require(isBarcodeActive(_barcode), "Barcode is not active");
     _;
   }
 
+  // TODO: unused
   modifier onlyBarcodeInactive(string memory _barcode) {
     require(isBarcodeInactive(_barcode), "Barcode is not inactive");
     _;
