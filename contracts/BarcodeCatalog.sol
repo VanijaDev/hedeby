@@ -2,6 +2,8 @@
 pragma solidity ^0.8.26;
 
 import { ArrayString } from "./libraries/ArrayString.sol";
+import { ArrayBarcodeInfo } from "./libraries/ArrayBarcodeInfo.sol";
+import { BarcodeInfo, BarcodeDetails } from "./structs/BarcodeStructs.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { String } from "./libraries/String.sol";
 
@@ -10,17 +12,8 @@ import { String } from "./libraries/String.sol";
 contract BarcodeCatalog is Ownable {
   using String for string;
   using ArrayString for string[];
+  using ArrayBarcodeInfo for BarcodeInfo[];
 
-  struct BarcodeInfo {
-    string barcode;
-    string description;
-  }
-  struct BarcodeDetails {
-    bool active;
-    uint256 barcodesInfoIndex;
-    string barcode;
-    string description;
-  }
 
   BarcodeInfo[] public barcodesInfo;
   string[] public activeBarcodes;
@@ -115,7 +108,7 @@ contract BarcodeCatalog is Ownable {
    * @param _active Status to be set.
    */
   function changeBarcodeStatus(string memory _barcode, bool _active) external onlyOwner onlyBarcodeExists(_barcode) {
-    if (isBarcodeActive(_barcode)  && _active == false) {
+    if (isBarcodeActive(_barcode) && _active == false) {
       uint256 index = activeBarcodeIndex[_barcode];
       delete activeBarcodeIndex[_barcode];
 
@@ -156,6 +149,7 @@ contract BarcodeCatalog is Ownable {
   function removeBarcode(string memory _barcode) external onlyOwner onlyBarcodeExists(_barcode) {
     uint256 index = barcodeInfoIndex[_barcode];
     delete barcodeInfoIndex[_barcode];
+    barcodesInfo.removeAtIndex(index);
 
     if (isBarcodeActive(_barcode)) {
       uint256 activeIndex = activeBarcodeIndex[_barcode];
@@ -168,8 +162,6 @@ contract BarcodeCatalog is Ownable {
 
       inactiveBarcodes.removeAtIndex(inactiveIndex);
     }
-
-    delete barcodesInfo[index];
 
     emit BarcodeRemoved(_barcode);
   }
