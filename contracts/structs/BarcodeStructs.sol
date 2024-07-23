@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
- struct BarcodeInfo {
+ struct ItemBarcodeInfo {
     string barcode;
     string description;
   }
 
-  struct BarcodeDetails {
+  struct ItemBarcodeDetails {
     bool active;
     uint256 barcodesInfoIndex;
     string barcode;

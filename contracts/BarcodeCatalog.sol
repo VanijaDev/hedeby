@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import { ArrayString } from "./libraries/ArrayString.sol";
-import { ArrayBarcodeInfo } from "./libraries/ArrayBarcodeInfo.sol";
-import { BarcodeInfo, BarcodeDetails } from "./structs/BarcodeStructs.sol";
+import { ArrayItemBarcodeInfo } from "./libraries/ArrayItemBarcodeInfo.sol";
+import { ItemBarcodeInfo, ItemBarcodeDetails } from "./structs/BarcodeStructs.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { String } from "./libraries/String.sol";
 
@@ -12,10 +12,10 @@ import { String } from "./libraries/String.sol";
 contract BarcodeCatalog is Ownable {
   using String for string;
   using ArrayString for string[];
-  using ArrayBarcodeInfo for BarcodeInfo[];
+  using ArrayItemBarcodeInfo for ItemBarcodeInfo[];
 
 
-  BarcodeInfo[] public barcodesInfo;
+  ItemBarcodeInfo[] public barcodesInfo;
   string[] public activeBarcodes;
   string[] public inactiveBarcodes;
 
@@ -93,7 +93,7 @@ contract BarcodeCatalog is Ownable {
       barcodeInfoIndex[barcode] = barcodesInfo.length;
       activeBarcodeIndex[barcode] = activeBarcodes.length;
 
-      barcodesInfo.push( BarcodeInfo(barcode, _descriptions[i]) );
+      barcodesInfo.push(ItemBarcodeInfo(barcode, _descriptions[i]) );
       activeBarcodes.push(barcode);
 
       emit BarcodeAdded(barcode);
@@ -152,15 +152,15 @@ contract BarcodeCatalog is Ownable {
    * @param _length Length.
    * @return Barcode info.
    */
-  function getBarcodesInfo(uint256 _startIndex, uint256 _length) external view returns (BarcodeInfo[] memory) {
-    BarcodeInfo[] storage _barcodesInfo = barcodesInfo;
+  function getBarcodesInfo(uint256 _startIndex, uint256 _length) external view returns (ItemBarcodeInfo[] memory) {
+    ItemBarcodeInfo[] storage _barcodesInfo = barcodesInfo;
     uint256 len = _length;
 
     if (_startIndex + len > _barcodesInfo.length) {
       _length = _barcodesInfo.length - _startIndex;
     }
 
-    BarcodeInfo[] memory result = new BarcodeInfo[](_length);
+    ItemBarcodeInfo[] memory result = new ItemBarcodeInfo[](_length);
     for (uint256 i = 0; i < _length; ++i) {
       result[i] = _barcodesInfo[_startIndex + i];
     }
@@ -196,7 +196,7 @@ contract BarcodeCatalog is Ownable {
    * @param _length Length.
    * @return Active barcodes details.
    */
-  function getActiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (BarcodeDetails[] memory) {
+  function getActiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (ItemBarcodeDetails[] memory) {
     string[] storage _activeBarcodes = activeBarcodes;
     uint256 len = _length;
 
@@ -204,12 +204,12 @@ contract BarcodeCatalog is Ownable {
       _length = _activeBarcodes.length - _startIndex;
     }
 
-    BarcodeInfo[] storage _barcodesInfo = barcodesInfo;
-    BarcodeDetails[] memory result = new BarcodeDetails[](_length);
+    ItemBarcodeInfo[] storage _barcodesInfo = barcodesInfo;
+    ItemBarcodeDetails[] memory result = new ItemBarcodeDetails[](_length);
 
     for (uint256 i = 0; i < _length; ++i) {
       string memory barcode = activeBarcodes[_startIndex + i]; // TODO: test gas usage
-      result[i] = BarcodeDetails(true, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
+      result[i] = ItemBarcodeDetails(true, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
     }
 
     return result;
@@ -243,7 +243,7 @@ contract BarcodeCatalog is Ownable {
    * @param _length Length.
    * @return Inactive barcodes details.
    */
-  function getInactiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (BarcodeDetails[] memory) {
+  function getInactiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (ItemBarcodeDetails[] memory) {
     string[] storage _inactiveBarcodes = inactiveBarcodes;
     uint256 len = _length;
 
@@ -251,12 +251,12 @@ contract BarcodeCatalog is Ownable {
       _length = _inactiveBarcodes.length - _startIndex;
     }
 
-    BarcodeInfo[] storage _barcodesInfo = barcodesInfo;
-    BarcodeDetails[] memory result = new BarcodeDetails[](_length);
+    ItemBarcodeInfo[] storage _barcodesInfo = barcodesInfo;
+    ItemBarcodeDetails[] memory result = new ItemBarcodeDetails[](_length);
 
     for (uint256 i = 0; i < _length; ++i) {
       string memory barcode = inactiveBarcodes[_startIndex + i]; // TODO: test gas usage
-      result[i] = BarcodeDetails(false, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
+      result[i] = ItemBarcodeDetails(false, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
     }
 
     return result;
