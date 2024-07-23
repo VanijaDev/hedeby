@@ -9,7 +9,7 @@ import { String } from "./libraries/String.sol";
 
 // import "hardhat/console.sol";
 
-contract BarcodeCatalog is Ownable {
+contract ProductBarcodeCatalog is Ownable {
   using String for string;
   using ArrayString for string[];
   using ArrayBarcodeInfo for BarcodeInfo[];
