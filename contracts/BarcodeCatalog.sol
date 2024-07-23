@@ -34,13 +34,11 @@ contract BarcodeCatalog is Ownable {
     _;
   }
 
-  // TODO: unused
   modifier onlyBarcodeActive(string memory _barcode) {
     require(isBarcodeActive(_barcode), "Barcode is not active");
     _;
   }
 
-  // TODO: unused
   modifier onlyBarcodeInactive(string memory _barcode) {
     require(isBarcodeInactive(_barcode), "Barcode is not inactive");
     _;
@@ -104,29 +102,31 @@ contract BarcodeCatalog is Ownable {
 
   /**
    * @dev Change barcode status.
-   * @param _barcode Barcode to change status.
    * @param _active Status to be set.
+   * @param _barcode Barcode to change status.
    */
-  function changeBarcodeStatus(string memory _barcode, bool _active) external onlyOwner onlyBarcodeExists(_barcode) {
-    if (isBarcodeActive(_barcode) && _active == false) {
-      uint256 index = activeBarcodeIndex[_barcode];
-      delete activeBarcodeIndex[_barcode];
+  function changeBarcodeStatus(bool _active, string memory _barcode) external onlyOwner onlyBarcodeExists(_barcode) {
+    _active ? changeBarcodeStatusToInactive(_barcode) : changeBarcodeStatusToActive(_barcode);
 
-      activeBarcodes.removeAtIndex(index);
+    // if (isBarcodeActive(_barcode) && _active == false) {
+    //   uint256 index = activeBarcodeIndex[_barcode];
+    //   delete activeBarcodeIndex[_barcode];
 
-      inactiveBarcodeIndex[_barcode] = inactiveBarcodes.length;
-      inactiveBarcodes.push(_barcode);
-    } else if (isBarcodeInactive(_barcode) && _active == true) {
-      uint256 index = inactiveBarcodeIndex[_barcode];
-      delete inactiveBarcodeIndex[_barcode];
+    //   activeBarcodes.removeAtIndex(index);
 
-      inactiveBarcodes.removeAtIndex(index);
+    //   inactiveBarcodeIndex[_barcode] = inactiveBarcodes.length;
+    //   inactiveBarcodes.push(_barcode);
+    // } else if (isBarcodeInactive(_barcode) && _active == true) {
+    //   uint256 index = inactiveBarcodeIndex[_barcode];
+    //   delete inactiveBarcodeIndex[_barcode];
 
-      activeBarcodeIndex[_barcode] = activeBarcodes.length;
-      activeBarcodes.push(_barcode);
-    } else {
-      revert("Invalid status change");
-    }
+    //   inactiveBarcodes.removeAtIndex(index);
+
+    //   activeBarcodeIndex[_barcode] = activeBarcodes.length;
+    //   activeBarcodes.push(_barcode);
+    // } else {
+    //   revert("Invalid status change");
+    // }
 
     emit BarcodeStatusUpdated(_barcode, _active);
   }
@@ -280,5 +280,33 @@ contract BarcodeCatalog is Ownable {
     }
 
     return result;
+  }
+
+  /**
+   * @dev Change barcode status to active.
+   * @param _barcode Barcode to change status.
+   */
+  function changeBarcodeStatusToActive(string memory _barcode) private onlyBarcodeInactive(_barcode) {
+    uint256 index = inactiveBarcodeIndex[_barcode];
+    delete inactiveBarcodeIndex[_barcode];
+
+    inactiveBarcodes.removeAtIndex(index);
+
+    activeBarcodeIndex[_barcode] = activeBarcodes.length;
+    activeBarcodes.push(_barcode);
+  }
+
+  /**
+   * @dev Change barcode status to inactive.
+   * @param _barcode Barcode to change status.
+   */
+  function changeBarcodeStatusToInactive(string memory _barcode) private onlyBarcodeActive(_barcode) {
+    uint256 index = activeBarcodeIndex[_barcode];
+    delete activeBarcodeIndex[_barcode];
+
+    activeBarcodes.removeAtIndex(index);
+
+    inactiveBarcodeIndex[_barcode] = inactiveBarcodes.length;
+    inactiveBarcodes.push(_barcode);
   }
 }
