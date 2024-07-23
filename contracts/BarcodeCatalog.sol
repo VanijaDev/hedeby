@@ -108,26 +108,6 @@ contract BarcodeCatalog is Ownable {
   function changeBarcodeStatus(bool _active, string memory _barcode) external onlyOwner onlyBarcodeExists(_barcode) {
     _active ? changeBarcodeStatusToInactive(_barcode) : changeBarcodeStatusToActive(_barcode);
 
-    // if (isBarcodeActive(_barcode) && _active == false) {
-    //   uint256 index = activeBarcodeIndex[_barcode];
-    //   delete activeBarcodeIndex[_barcode];
-
-    //   activeBarcodes.removeAtIndex(index);
-
-    //   inactiveBarcodeIndex[_barcode] = inactiveBarcodes.length;
-    //   inactiveBarcodes.push(_barcode);
-    // } else if (isBarcodeInactive(_barcode) && _active == true) {
-    //   uint256 index = inactiveBarcodeIndex[_barcode];
-    //   delete inactiveBarcodeIndex[_barcode];
-
-    //   inactiveBarcodes.removeAtIndex(index);
-
-    //   activeBarcodeIndex[_barcode] = activeBarcodes.length;
-    //   activeBarcodes.push(_barcode);
-    // } else {
-    //   revert("Invalid status change");
-    // }
-
     emit BarcodeStatusUpdated(_barcode, _active);
   }
 
