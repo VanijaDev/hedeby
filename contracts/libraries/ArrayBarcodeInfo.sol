@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import { ItemBarcodeInfo } from "../structs/BarcodeStructs.sol";
+import { BarcodeInfo } from "../structs/BarcodeStructs.sol";
 
-library ArrayItemBarcodeInfo {
-  function removeAtIndex(ItemBarcodeInfo[] storage _array, uint256 _index) internal {
+library ArrayBarcodeInfo {
+  function removeAtIndex(BarcodeInfo[] storage _array, uint256 _index) internal {
     uint256 len = _array.length;
 
     if (_index >= len) {

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import { ArrayString } from "./libraries/ArrayString.sol";
-import { ArrayItemBarcodeInfo } from "./libraries/ArrayItemBarcodeInfo.sol";
-import { ItemBarcodeInfo, ItemBarcodeDetails } from "./structs/BarcodeStructs.sol";
+import { ArrayBarcodeInfo } from "./libraries/ArrayBarcodeInfo.sol";
+import { BarcodeInfo, BarcodeDetails } from "./structs/BarcodeStructs.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { String } from "./libraries/String.sol";
 
@@ -12,10 +12,10 @@ import { String } from "./libraries/String.sol";
 contract BarcodeCatalog is Ownable {
   using String for string;
   using ArrayString for string[];
-  using ArrayItemBarcodeInfo for ItemBarcodeInfo[];
+  using ArrayBarcodeInfo for BarcodeInfo[];
 
 
-  ItemBarcodeInfo[] public barcodesInfo;
+  BarcodeInfo[] public barcodesInfo;
   string[] public activeBarcodes;
   string[] public inactiveBarcodes;
 
@@ -93,7 +93,7 @@ contract BarcodeCatalog is Ownable {
       barcodeInfoIndex[barcode] = barcodesInfo.length;
       activeBarcodeIndex[barcode] = activeBarcodes.length;
 
-      barcodesInfo.push(ItemBarcodeInfo(barcode, _descriptions[i]) );
+      barcodesInfo.push( BarcodeInfo(barcode, _descriptions[i]) );
       activeBarcodes.push(barcode);
 
       emit BarcodeAdded(barcode);
@@ -107,6 +107,26 @@ contract BarcodeCatalog is Ownable {
    */
   function changeBarcodeStatus(bool _active, string memory _barcode) external onlyOwner onlyBarcodeExists(_barcode) {
     _active ? changeBarcodeStatusToInactive(_barcode) : changeBarcodeStatusToActive(_barcode);
+
+    // if (isBarcodeActive(_barcode) && _active == false) {
+    //   uint256 index = activeBarcodeIndex[_barcode];
+    //   delete activeBarcodeIndex[_barcode];
+
+    //   activeBarcodes.removeAtIndex(index);
+
+    //   inactiveBarcodeIndex[_barcode] = inactiveBarcodes.length;
+    //   inactiveBarcodes.push(_barcode);
+    // } else if (isBarcodeInactive(_barcode) && _active == true) {
+    //   uint256 index = inactiveBarcodeIndex[_barcode];
+    //   delete inactiveBarcodeIndex[_barcode];
+
+    //   inactiveBarcodes.removeAtIndex(index);
+
+    //   activeBarcodeIndex[_barcode] = activeBarcodes.length;
+    //   activeBarcodes.push(_barcode);
+    // } else {
+    //   revert("Invalid status change");
+    // }
 
     emit BarcodeStatusUpdated(_barcode, _active);
   }
@@ -152,15 +172,15 @@ contract BarcodeCatalog is Ownable {
    * @param _length Length.
    * @return Barcode info.
    */
-  function getBarcodesInfo(uint256 _startIndex, uint256 _length) external view returns (ItemBarcodeInfo[] memory) {
-    ItemBarcodeInfo[] storage _barcodesInfo = barcodesInfo;
+  function getBarcodesInfo(uint256 _startIndex, uint256 _length) external view returns (BarcodeInfo[] memory) {
+    BarcodeInfo[] storage _barcodesInfo = barcodesInfo;
     uint256 len = _length;
 
     if (_startIndex + len > _barcodesInfo.length) {
       _length = _barcodesInfo.length - _startIndex;
     }
 
-    ItemBarcodeInfo[] memory result = new ItemBarcodeInfo[](_length);
+    BarcodeInfo[] memory result = new BarcodeInfo[](_length);
     for (uint256 i = 0; i < _length; ++i) {
       result[i] = _barcodesInfo[_startIndex + i];
     }
@@ -196,7 +216,7 @@ contract BarcodeCatalog is Ownable {
    * @param _length Length.
    * @return Active barcodes details.
    */
-  function getActiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (ItemBarcodeDetails[] memory) {
+  function getActiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (BarcodeDetails[] memory) {
     string[] storage _activeBarcodes = activeBarcodes;
     uint256 len = _length;
 
@@ -204,12 +224,12 @@ contract BarcodeCatalog is Ownable {
       _length = _activeBarcodes.length - _startIndex;
     }
 
-    ItemBarcodeInfo[] storage _barcodesInfo = barcodesInfo;
-    ItemBarcodeDetails[] memory result = new ItemBarcodeDetails[](_length);
+    BarcodeInfo[] storage _barcodesInfo = barcodesInfo;
+    BarcodeDetails[] memory result = new BarcodeDetails[](_length);
 
     for (uint256 i = 0; i < _length; ++i) {
       string memory barcode = activeBarcodes[_startIndex + i]; // TODO: test gas usage
-      result[i] = ItemBarcodeDetails(true, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
+      result[i] = BarcodeDetails(true, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
     }
 
     return result;
@@ -243,7 +263,7 @@ contract BarcodeCatalog is Ownable {
    * @param _length Length.
    * @return Inactive barcodes details.
    */
-  function getInactiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (ItemBarcodeDetails[] memory) {
+  function getInactiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (BarcodeDetails[] memory) {
     string[] storage _inactiveBarcodes = inactiveBarcodes;
     uint256 len = _length;
 
@@ -251,12 +271,12 @@ contract BarcodeCatalog is Ownable {
       _length = _inactiveBarcodes.length - _startIndex;
     }
 
-    ItemBarcodeInfo[] storage _barcodesInfo = barcodesInfo;
-    ItemBarcodeDetails[] memory result = new ItemBarcodeDetails[](_length);
+    BarcodeInfo[] storage _barcodesInfo = barcodesInfo;
+    BarcodeDetails[] memory result = new BarcodeDetails[](_length);
 
     for (uint256 i = 0; i < _length; ++i) {
       string memory barcode = inactiveBarcodes[_startIndex + i]; // TODO: test gas usage
-      result[i] = ItemBarcodeDetails(false, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
+      result[i] = BarcodeDetails(false, barcodeInfoIndex[barcode], barcode, _barcodesInfo[barcodeInfoIndex[barcode]].description);
     }
 
     return result;
