@@ -5,11 +5,17 @@ import { ArrayString } from "./libraries/ArrayString.sol";
 import { ArrayBarcodeInfo } from "./libraries/ArrayBarcodeInfo.sol";
 import { BarcodeInfo, BarcodeDetails } from "./structs/BarcodeStructs.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { IProductCatalog } from "./interfaces/IProductCatalog.sol";
 import { String } from "./libraries/String.sol";
 
 // import "hardhat/console.sol";
 
-contract ProductBarcodeCatalog is Ownable {
+/**
+ * @title A catalog of products.
+ * @author Ivan Solomichev.
+ * @dev Allows to add, remove, update product barcodes and their descriptions. Also, allows to change status of the barcode. 
+ */
+contract ProductCatalog is IProductCatalog, Ownable {
   using String for string;
   using ArrayString for string[];
   using ArrayBarcodeInfo for BarcodeInfo[];
@@ -58,7 +64,7 @@ contract ProductBarcodeCatalog is Ownable {
   /**
    * @dev Checks if barcode is active.
    * @param _barcode Barcode to check.
-   * @return Whether barcode is active.
+   * @return bool Whether barcode is active.
    */
   function isBarcodeActive(string memory _barcode) public view returns (bool) {
     uint256 index = activeBarcodeIndex[_barcode];
@@ -69,7 +75,7 @@ contract ProductBarcodeCatalog is Ownable {
   /**
    * @dev Checks if barcode is inactive.
    * @param _barcode Barcode to check.
-   * @return Whether barcode is inactive.
+   * @return bool Whether barcode is inactive.
    */
   function isBarcodeInactive(string memory _barcode) public view returns (bool) {
     uint256 index = inactiveBarcodeIndex[_barcode];
@@ -170,7 +176,7 @@ contract ProductBarcodeCatalog is Ownable {
    * @dev Get barcode info.
    * @param _startIndex Start index.
    * @param _length Length.
-   * @return Barcode info.
+   * @return BarcodeInfo Barcode info.
    */
   function getBarcodesInfo(uint256 _startIndex, uint256 _length) external view returns (BarcodeInfo[] memory) {
     BarcodeInfo[] storage _barcodesInfo = barcodesInfo;
@@ -192,7 +198,7 @@ contract ProductBarcodeCatalog is Ownable {
    * @dev Get active barcodes.
    * @param _startIndex Start index.
    * @param _length Length.
-   * @return Active barcodes.
+   * @return stirng[] Active barcodes.
    */
   function getActiveBarcodes(uint256 _startIndex, uint256 _length) external view returns (string[] memory) {
     string[] storage _activeBarcodes = activeBarcodes;
@@ -214,7 +220,7 @@ contract ProductBarcodeCatalog is Ownable {
    * @dev Get active barcodes details.
    * @param _startIndex Start index.
    * @param _length Length.
-   * @return Active barcodes details.
+   * @return BarcodeDetails[] Active barcodes details.
    */
   function getActiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (BarcodeDetails[] memory) {
     string[] storage _activeBarcodes = activeBarcodes;
@@ -239,7 +245,7 @@ contract ProductBarcodeCatalog is Ownable {
    * @dev Get inactive barcodes.
    * @param _startIndex Start index.
    * @param _length Length.
-   * @return Inactive barcodes.
+   * @return string[] Inactive barcodes.
    */
   function getInactiveBarcodes(uint256 _startIndex, uint256 _length) external view returns (string[] memory) {
     string[] storage _inactiveBarcodes = inactiveBarcodes;
@@ -261,7 +267,7 @@ contract ProductBarcodeCatalog is Ownable {
    * @dev Get inactive barcodes details.
    * @param _startIndex Start index.
    * @param _length Length.
-   * @return Inactive barcodes details.
+   * @return BarcodeDetails[] Inactive barcodes details.
    */
   function getInactiveBarcodesDetails(uint256 _startIndex, uint256 _length) external view returns (BarcodeDetails[] memory) {
     string[] storage _inactiveBarcodes = inactiveBarcodes;
